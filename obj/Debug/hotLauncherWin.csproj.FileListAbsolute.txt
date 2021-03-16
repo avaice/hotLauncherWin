@@ -1,0 +1,9 @@
+D:\GitHub\hotLauncherWin\hotLauncherWin\bin\Debug\hotLauncherWin.exe.config
+D:\GitHub\hotLauncherWin\hotLauncherWin\bin\Debug\hotLauncherWin.exe
+D:\GitHub\hotLauncherWin\hotLauncherWin\bin\Debug\hotLauncherWin.pdb
+D:\GitHub\hotLauncherWin\hotLauncherWin\obj\Debug\hotLauncherWin.csprojAssemblyReference.cache
+D:\GitHub\hotLauncherWin\hotLauncherWin\obj\Debug\hotLauncherWin.Form1.resources
+D:\GitHub\hotLauncherWin\hotLauncherWin\obj\Debug\hotLauncherWin.Properties.Resources.resources
+D:\GitHub\hotLauncherWin\hotLauncherWin\obj\Debug\hotLauncherWin.csproj.GenerateResource.cache
+D:\GitHub\hotLauncherWin\hotLauncherWin\obj\Debug\hotLauncherWin.exe
+D:\GitHub\hotLauncherWin\hotLauncherWin\obj\Debug\hotLauncherWin.pdb
