@@ -99,6 +99,8 @@ namespace hotLauncherWin
             
             //最新情報をブラウザで表示する
             newsBrowser.Url = new Uri(newsURL);
+            //キャッシュをクリアすることで最新のページを表示する
+            newsBrowser.Refresh();
 
             //アップデートをチェックする
             string dlResponce = CheckUpdates();
