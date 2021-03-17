@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Net;
 
+
 //--------------------------------------------------------------------
 //Form1.cs // メイン処理を行うスクリプト
 //作成:avaice_
@@ -39,6 +40,9 @@ namespace hotLauncherWin
         private readonly string launcherName = launcherSetting.launcherName;
         private readonly string productName = launcherSetting.productName;
         private readonly string newsURL = launcherSetting.newsURL;
+        private readonly string lverURL = launcherSetting.lverURL;
+        private readonly string launcherVer = launcherSetting.launcherVer;
+        private readonly string launcherURL = launcherSetting.launcherURL;
         private static readonly string launcherParam = launcherSetting.launcherParam;
 
 
@@ -49,8 +53,40 @@ namespace hotLauncherWin
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            
+
+            string path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\Res\";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            //カレントディレクトリを指定
+            System.IO.Directory.SetCurrentDirectory(path);
+
+
             //Main.csで指定したランチャー名に変更する
-            this.Text = launcherName;
+            this.Text = launcherName + launcherVer;
+
+            //最新のランチャーがあるかチェックする
+            switch (CheckLatestLVer())
+            {
+                //最新バージョンの時
+                case "latest":
+                    //何もしない
+                    break;
+                //エラー時
+                case "error":
+                    //アップデートが確認できなければエラーを出して停止する
+                    StatusLabel.Text = "サーバーエラー！ランチャーのアップデート確認に失敗しました。";
+                    return;
+                //アップデートがある時
+                default:
+                    //DoUpdate関数へ飛んでアップデート開始
+                    StatusLabel.Text = "ランチャーをアップデートしています";
+                    DoLauncherUpdate();
+                    return;
+            }
 
             //launcherSetting.csで設定した設定項目に抜けが無いかチェックする
             string chkSettings = VerifySettings();
@@ -188,7 +224,7 @@ namespace hotLauncherWin
             string err = "";
             if(verURL == "")
             {
-                err = err + "<br>" +  "verURL(バージョン取得URL)を指定してください！";
+                err = err + "<br>" + "verURL(最新バージョン取得URL)を指定してください！";
             }
             if (resourceURL == "")
             {
@@ -206,11 +242,106 @@ namespace hotLauncherWin
             {
                 err = err + "<br>" + "newsURL(最新情報表示WebBrowserのURL)を指定してください！";
             }
+            if (lverURL == "")
+            {
+                err = err + "<br>" + "lverURL(最新ランチャーバージョン取得URL)を指定してください！";
+            }
+            if (launcherURL == "")
+            {
+                err = err + "<br>" + "newsURL(最新ランチャーのダウンロードURL)を指定してください！";
+            }
             if (err == "")
             {
                 err =  "ok";
             }
             return err;
+        }
+
+        //ランチャー自体のアップデートがないかチェックする
+        private string CheckLatestLVer()
+        {
+            string latestLver = GetFromURL(lverURL);
+            if (latestLver == launcherVer)
+            {
+                //最新なら特に何もしない
+                return "latest";
+            }
+            else if (latestLver == "error")
+            {
+                //最新ランチャーVerの取得に失敗
+                return "error";
+            }
+            else
+            {
+                //最新版があった場合
+                return latestLver;
+            }
+        }
+
+        private void DoLauncherUpdate()
+        {
+            StatusLabel.Text = "ランチャーのアップデートをダウンロードしています";
+            if (DownloadFromURL(launcherURL, "lResource.zip"))
+            {
+                StatusLabel.Text = "アップデートを適用するため再起動します。";
+                string filePath = System.IO.Directory.GetCurrentDirectory() + @"\updResources";
+                // 展開先のディレクトリがあるかチェックする
+                DirectoryInfo di = new DirectoryInfo(filePath);
+                if (di.Exists) {System.IO.Directory.Delete(filePath, true);}
+
+
+
+                try
+                {
+                    string[] files;
+                    string updResPath = System.IO.Directory.GetCurrentDirectory() + @"\updResources";
+                    //Zip展開処理
+                    System.IO.Compression.ZipFile.ExtractToDirectory(@"lResource.zip", updResPath);
+                    try
+                    {
+                        files = Directory.GetFiles(updResPath, Path.GetFileName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName));
+                        updResPath = Path.GetDirectoryName(files[0]);
+                    }
+                    catch
+                    {
+                        //展開失敗
+                        StatusLabel.Text = "ランチャーアップデートリソースが不正です。";
+                        return;
+                    }
+                    files = Directory.GetFiles(updResPath, "*");
+
+                    //コマンドラインに投げるbatを作る
+                    string cmdline = "rem ランチャー自体の更新を開始します。\ntimeout 3 > null\n";
+
+                    for (int i = 0; i < files.Length; ++i) // a.Length は配列 a の長さ。これの例では5。
+                    {
+                        cmdline = cmdline + "copy " + files[i] + " " + Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\" + Path.GetFileName(files[i]) + " /y \n";
+                    }
+
+                    cmdline = cmdline + "start " + System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName + "\nexit";
+
+
+                    //batに書き込む
+                    File.WriteAllText(System.IO.Directory.GetCurrentDirectory() + @"\updResources\" + @"upd.bat", cmdline);
+
+                    //完成したbatを起動して自分は消える
+                    System.Diagnostics.Process.Start(System.IO.Directory.GetCurrentDirectory() + @"\updResources\" + @"upd.bat");
+                    this.Close();
+
+
+
+                }
+                catch
+                {
+                    //展開失敗
+                    StatusLabel.Text += "ランチャーアップデート適用中にエラーが発生しました。";
+                    return;
+                }
+            }
+            else
+            {
+                StatusLabel.Text = "サーバーエラー！ランチャーのアップデートがダウンロードできませんでした。";
+            }
         }
 
 
