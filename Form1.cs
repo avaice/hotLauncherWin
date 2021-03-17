@@ -10,6 +10,12 @@ using System.Windows.Forms;
 using System.IO;
 using System.Net;
 
+//--------------------------------------------------------------------
+//Form1.cs // メイン処理を行うスクリプト
+//作成:avaice_    最終更新:avaice_
+//Create date: 2021/03/17   Last update: 2021/03/17
+//変更内容: 新規作成
+//--------------------------------------------------------------------
 namespace hotLauncherWin
 {
     public partial class Form1 : Form
@@ -20,26 +26,21 @@ namespace hotLauncherWin
         }
 
         //--------------------------------------------------------------------
-        //初期宣言（弄らなくて大丈夫です）
+        //初期宣言
         //--------------------------------------------------------------------
         System.Net.WebClient downloadClient = null;
 
 
         //--------------------------------------------------------------------
-        //ゲーム・ダウンロード情報に関する設定項目です！必ず設定してください！
+        //設定項目をlaunchersettings.csからコピーする※ここから変更しない！
         //--------------------------------------------------------------------
 
-        //ゲームの最新バージョンを示したtxtファイルのURL
-        private readonly string verURL = ("");
-        //ゲームのバイナリデータの場所を示したtxtファイルのURL
-        private readonly string resourceURL = ("");
-        //このアプリケーションのタイトル
-        private readonly string launcherName = "MyAwesomeGame Updater";
-        //UnityのProject Settings→Product Name
-        private readonly string productName = "MyAwesomeProductName";
-
-        //ゲームの最新情報を表示するWebBrowserのURL
-        private readonly string newsURL = "";
+        private readonly string verURL = launcherSetting.verURL;
+        private readonly string resourceURL = launcherSetting.resourceURL;
+        private readonly string launcherName = launcherSetting.launcherName;
+        private readonly string productName = launcherSetting.productName;
+        private readonly string newsURL = launcherSetting.newsURL;
+        private static readonly string launcherParam = launcherSetting.launcherParam;
 
 
 
@@ -52,10 +53,11 @@ namespace hotLauncherWin
             //Main.csで指定したランチャー名に変更する
             this.Text = launcherName;
 
-            //設定項目に抜けが無いかチェックする
+            //launcherSetting.csで設定した設定項目に抜けが無いかチェックする
             string chkSettings = VerifySettings();
             if (chkSettings == "ok") { }else
             {
+                //エラーだったらVerifySettingsの返り値に入っていたエラー内容を出力して停止する
                 newsBrowser.DocumentText = ("<center><h1><b>hotLauncher ランチャー設定エラー！</b></h1><br>" + chkSettings + "<br><br><font color=red>このエラーが解決するまでランチャーは動作しません。</font></center>");
                 return;
             }
@@ -74,11 +76,12 @@ namespace hotLauncherWin
                     return;
                 //エラー時
                 case "error":
+                    //アップデートが確認できなければエラーを出して停止する
                     StatusLabel.Text = "サーバーエラー！バージョン確認に失敗しました。";
                     return;
                 //アップデートがある時
                 default:
-                    //StatusLabel.Text = ("Ver" + dlResponce +" アップデートが見つかりました。");
+                    //DoUpdate関数へ飛んでアップデート開始
                     DoUpdate();
                     break;
             }
@@ -106,6 +109,7 @@ namespace hotLauncherWin
             if (DownloadFromURL(verURL, "VER.txt"))
             {
                 string latestVer = ReadByTextFile("VER.txt");
+                //もしチェックした最新VerとVER.txtから読み取ったcurrentVerが一致していればlatestを返す。そうでなければ最新Verのバージョン番号を返す。
                 if (currentVer == latestVer)
                 {return "latest";}
                 else
@@ -125,11 +129,13 @@ namespace hotLauncherWin
             string resURL = GetFromURL(resourceURL);
             if(resURL == "error")
             {
+                //ダウンロード先のURLを取得できなかった場合
                 StatusLabel.Text = "サーバーエラー！ アップデート フェーズ1で失敗しました。";
                 return;
             }
             else
             {
+                //ダウンロード先のURLを取得出来たらダウンロードを開始する
                 DownloadResources(resURL);
                 return;
             }
@@ -347,11 +353,11 @@ namespace hotLauncherWin
             //ウィンドウ/フルスクリーン　のチェック状態で起動時の引数を変更する
             if (r1.Checked)
             {
-                System.Diagnostics.Process.Start(System.IO.Directory.GetCurrentDirectory() + @"\" + productName + @"\" + productName + ".exe", "-screen-fullscreen 0");
+                System.Diagnostics.Process.Start(System.IO.Directory.GetCurrentDirectory() + @"\" + productName + @"\" + productName + ".exe", "-screen-fullscreen 0 " + launcherParam );
             }
             if (r2.Checked)
             {
-                System.Diagnostics.Process.Start(System.IO.Directory.GetCurrentDirectory() + @"\" + productName + @"\" + productName + ".exe", "-screen-fullscreen 1 -screen-width " + width.ToString() + " -screen-height " + height.ToString());
+                System.Diagnostics.Process.Start(System.IO.Directory.GetCurrentDirectory() + @"\" + productName + @"\" + productName + ".exe", "-screen-fullscreen 1 -screen-width " + width.ToString() + " -screen-height " + height.ToString() + " " + launcherParam);
             }
 
             //役目を終えたランチャーはこれにて終了
