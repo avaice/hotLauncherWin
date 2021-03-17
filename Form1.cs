@@ -66,7 +66,7 @@ namespace hotLauncherWin
 
 
             //Main.csで指定したランチャー名に変更する
-            this.Text = launcherName + launcherVer;
+            this.Text = "【" + launcherName + " " + launcherVer + "】    Powered by hotLauncher";
 
             //最新のランチャーがあるかチェックする
             switch (CheckLatestLVer())
