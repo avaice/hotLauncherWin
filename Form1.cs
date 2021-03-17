@@ -58,7 +58,7 @@ namespace hotLauncherWin
             if (chkSettings == "ok") { }else
             {
                 //エラーだったらVerifySettingsの返り値に入っていたエラー内容を出力して停止する
-                newsBrowser.DocumentText = ("<center><h1><b>hotLauncher ランチャー設定エラー！</b></h1><br>" + chkSettings + "<br><br><font color=red>このエラーが解決するまでランチャーは動作しません。</font></center>");
+                newsBrowser.DocumentText = ("<font face='メイリオ'><center><h1><b>hotLauncher ランチャー設定エラー！</b></h1><br>" + chkSettings + "<br><br><font color=red>このエラーが解決するまでランチャーは動作しません。</font></font></center>");
                 return;
             }
             
