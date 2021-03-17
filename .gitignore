@@ -1,0 +1,5 @@
+#ビルド時の出力ファイルはいらない
+bin/
+obj/
+Debug/
+Release/
