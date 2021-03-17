@@ -3,6 +3,6 @@ bin/
 obj/
 Debug/
 Release/
-.cache
-.exe
-.pdb
+*.cache
+*.exe
+*.pdb
