@@ -17,7 +17,7 @@ namespace hotLauncherWin
         //ゲームのバイナリデータの場所を示したtxtファイルのURL
         public static readonly string resourceURL = ("");
         //このアプリケーションのタイトル
-        public static readonly string launcherName = "MyAwesomeGame Updater";
+        public static readonly string launcherName = "MyVeryAwesomeGame Updater";
         //UnityのProject Settings→Product Name
         public static readonly string productName = "MyAwesomeProductName";
 
