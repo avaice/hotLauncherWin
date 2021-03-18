@@ -18,7 +18,7 @@
  「こうしたほうがいい」みたいなのがあればTwitterのDMでぜひ教えてください。<br>
 
 # 使い方(※VS2019とC#が入っている前提)
-※暫定版です。くわしい説明はまた今度別で用意しようと思います。<br><br>
+初心者向けのやさしい解説は<a href="http://playio.starfree.jp/blog/2021/03/18/%e3%80%90%e8%a9%b3%e8%aa%ac%e3%80%91hotlauncher%e3%81%ae%e4%bd%bf%e3%81%84%e6%96%b9/">こちら</a><br><br>
   1.リポジトリをCloneする　またはZipでダウンロードする　※Cloneすれば今後のアップデートをPullで簡単に適用できます。<br>
   2.hotLauncherWin.csprojをVS2019で開く<br>
   3.ソリューション エクスプローラーからlauncherSettings.csを開く<br>
@@ -41,6 +41,6 @@
 # リソースデータの作り方
  <b>ゲームリソース</b><br>
  Unityで出力されたフォルダをそのままzip化してください。<br>
- フォルダ階層の例：resource.zip -> MyAwesomeGame -> MyAwesomeGame.zip<br>
+ フォルダ階層の例：resource.zip -> MyAwesomeGame -> MyAwesomeGame.exe<br>
  <b>ランチャーリソース</b><br>
  フォルダ階層は自動で判別するのでアップデートされたファイルだけ差分で入れてくれればOKです。ランチャー本体のexeはアップデート前とファイル名を変えないでください。<br>
