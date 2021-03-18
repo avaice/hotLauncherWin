@@ -57,6 +57,17 @@ namespace hotLauncherWin
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //Resフォルダがなければ作る
+            string path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\Res\";
+            if (!Directory.Exists(path))
+            {
+                Directory.CreateDirectory(path);
+            }
+
+            //カレントディレクトリを指定
+            System.IO.Directory.SetCurrentDirectory(path);
+
+
             //ランチャーの情報(VER, resourceURL, lverURL, launcherURL, newsURL)を取得する
             if (!GetInfoData())
             {
@@ -69,23 +80,15 @@ namespace hotLauncherWin
             GetInstalledVer();
 
 
-            //Resフォルダがなければ作る
-            string path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\Res\";
-            if (!Directory.Exists(path))
-            {
-                Directory.CreateDirectory(path);
-            }
-
-            //カレントディレクトリを指定
-            System.IO.Directory.SetCurrentDirectory(path);
 
 
             //Main.csで指定したランチャー名に変更する
             this.Text = "【" + launcherName + " " + launcherVer + "】    Powered by hotLauncher";
-
+            
             //最新のランチャーがあるかチェックする
             if (lVer == launcherVer) { }else
             {
+
                 //最新でなければDoUpdate関数へ飛んでアップデート開始
                 StatusLabel.Text = "ランチャーをアップデートしています";
                 DoLauncherUpdate();
@@ -107,13 +110,17 @@ namespace hotLauncherWin
 
             //アップデートをチェックする
             
-            if (currentVer == latestVer) { }
+            if (currentVer == latestVer) {
+                AllEnd();
+            }
             else
             {
                 //アップデートがある時
                 //DoUpdate関数へ飛んでアップデート開始
                 DoUpdate();
             }
+
+            
       
         }
 
@@ -127,12 +134,14 @@ namespace hotLauncherWin
         {
 
             //インストール済みVerを記録しているVER.txtが存在するか確認する。無ければcurrentVerに000を代入する
-            if (File.Exists(@"VER.txt"))
+            if (File.Exists("VER.txt"))
             {
                 currentVer = ReadByTextFile("VER.txt");
                 
             }
             else { currentVer = "000"; }
+
+            return;
 
         }
 
@@ -184,12 +193,15 @@ namespace hotLauncherWin
         //すべて処理が終わったら呼ばれる
         void AllEnd()
         {
+            string path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\Res\";
+            //最新Verを書き込む
+            File.WriteAllText("VER.txt", latestVer);
+
+
             StatusLabel.Text = ("最新バージョンを実行しています。");
             progressBar1.Value = 100;
             PlayButton.Enabled = true;
-
-            //最新Verを書き込む
-            File.WriteAllText("VER.txt", currentVer);
+            
         }
 
         //設定項目に抜けがないかチェックする関数
@@ -231,9 +243,11 @@ namespace hotLauncherWin
 
         private void DoLauncherUpdate()
         {
+            
             StatusLabel.Text = "ランチャーのアップデートをダウンロードしています";
             if (DownloadFromURL(launcherURL, "lResource.zip"))
             {
+
                 StatusLabel.Text = "アップデートを適用するため再起動します。";
                 string filePath = System.IO.Directory.GetCurrentDirectory() + @"\updResources";
                 // 展開先のディレクトリがあるかチェックする
@@ -262,15 +276,15 @@ namespace hotLauncherWin
                     files = Directory.GetFiles(updResPath, "*");
 
                     //コマンドラインに投げるbatを作る
-                    string cmdline = "rem ランチャー自体の更新を開始します。\ntimeout 3 > null\n";
+                    string cmdline = "";
 
                     for (int i = 0; i < files.Length; ++i) // a.Length は配列 a の長さ。これの例では5。
                     {
-                        cmdline = cmdline + "copy " + files[i] + " " + Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\" + Path.GetFileName(files[i]) + " /y \n";
+                        cmdline = cmdline + "copy \"" + files[i] + "\" \"" + Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\" + Path.GetFileName(files[i]) + "\" /y \n";
                     }
 
                     cmdline = cmdline + "start " + System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName + "\nexit";
-
+                    
 
                     //batに書き込む
                     File.WriteAllText(System.IO.Directory.GetCurrentDirectory() + @"\updResources\" + @"upd.bat", cmdline);
