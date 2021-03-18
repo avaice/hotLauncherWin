@@ -12,9 +12,7 @@ namespace hotLauncherWin
         //--------------------------------------------------------------------
 
         //ゲームの最新バージョンを示したtxtファイルのURL
-        public static readonly string verURL = ("http://myawesomegame.com/myawesomegame/VER.txt");
-        //ゲームのバイナリデータの場所を示したtxtファイルのURL
-        public static readonly string resourceURL = ("http://myawesomegame.com/myawesomegame/resourcePath.txt");
+        public static readonly string infoURL = ("http://resource.myawesomegame.com/launcher_info.txt");
         //UnityのProject Settings→Product Name
         public static readonly string productName = "MyAwesomeGame";
 
@@ -23,13 +21,6 @@ namespace hotLauncherWin
         public static readonly string launcherName = "MyAwesomeGame Updater";
         //ランチャーのバージョン
         public static readonly string launcherVer = "1.00";
-        //ランチャーの最新バージョンを示したtxtファイルのURL
-        public static readonly string lverURL = ("http://myawesomegame.com/myawesomegame/LVER.txt");
-        //ランチャーのzipが置いてあるURL
-        public static readonly string launcherURL = ("http://myawesomegame.com/myawesomegame/launcher.zip");
-
-        //ゲームの最新情報を表示するWebBrowserのURL
-        public static readonly string newsURL = "http://myawesomegame.com/myawesomegame/news.html";
 
         //ゲーム起動時に送る引数（ランチャーからしか起動させたくない場合などに
         //Unity側の引数処理はsangoさんの https://qiita.com/sango/items/582468d3038330c59308 の記事が参考になります）

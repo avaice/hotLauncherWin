@@ -33,17 +33,21 @@ namespace hotLauncherWin
 
         //--------------------------------------------------------------------
         //設定項目をlaunchersettings.csからコピーする※ここから変更しない！
-        //--------------------------------------------------------------------
 
-        private readonly string verURL = launcherSetting.verURL;
-        private readonly string resourceURL = launcherSetting.resourceURL;
+        //--------------------------------------------------------------------
+        private readonly string infoURL = launcherSetting.infoURL;
         private readonly string launcherName = launcherSetting.launcherName;
         private readonly string productName = launcherSetting.productName;
-        private readonly string newsURL = launcherSetting.newsURL;
-        private readonly string lverURL = launcherSetting.lverURL;
         private readonly string launcherVer = launcherSetting.launcherVer;
-        private readonly string launcherURL = launcherSetting.launcherURL;
         private static readonly string launcherParam = launcherSetting.launcherParam;
+
+        //Form1にしかない変数
+        private string launcherURL;
+        private string newsURL;
+        private string lVer;
+        private string latestVer;
+        private string resourceURL;
+        private string currentVer;
 
 
 
@@ -53,8 +57,19 @@ namespace hotLauncherWin
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            //ランチャーの情報(VER, resourceURL, lverURL, launcherURL, newsURL)を取得する
+            if (!GetInfoData())
+            {
+                //取得失敗時
+                StatusLabel.Text = "サーバーエラー！ランチャーの情報確認に失敗しました。";
+                return;
+            }
 
+            //インストール済みVerをcurrentVerに格納する関数を実行
+            GetInstalledVer();
+
+
+            //Resフォルダがなければ作る
             string path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\Res\";
             if (!Directory.Exists(path))
             {
@@ -69,23 +84,11 @@ namespace hotLauncherWin
             this.Text = "【" + launcherName + " " + launcherVer + "】    Powered by hotLauncher";
 
             //最新のランチャーがあるかチェックする
-            switch (CheckLatestLVer())
+            if (lVer == launcherVer) { }else
             {
-                //最新バージョンの時
-                case "latest":
-                    //何もしない
-                    break;
-                //エラー時
-                case "error":
-                    //アップデートが確認できなければエラーを出して停止する
-                    StatusLabel.Text = "サーバーエラー！ランチャーのアップデート確認に失敗しました。";
-                    return;
-                //アップデートがある時
-                default:
-                    //DoUpdate関数へ飛んでアップデート開始
-                    StatusLabel.Text = "ランチャーをアップデートしています";
-                    DoLauncherUpdate();
-                    return;
+                //最新でなければDoUpdate関数へ飛んでアップデート開始
+                StatusLabel.Text = "ランチャーをアップデートしています";
+                DoLauncherUpdate();
             }
 
             //launcherSetting.csで設定した設定項目に抜けが無いかチェックする
@@ -103,25 +106,15 @@ namespace hotLauncherWin
             newsBrowser.Refresh();
 
             //アップデートをチェックする
-            string dlResponce = CheckUpdates();
-            switch (dlResponce)
+            
+            if (currentVer == latestVer) { }
+            else
             {
-                //最新バージョンの時
-                case "latest":
-                    //処理が全て完了した時の関数へ飛ぶ
-                    AllEnd();
-                    return;
-                //エラー時
-                case "error":
-                    //アップデートが確認できなければエラーを出して停止する
-                    StatusLabel.Text = "サーバーエラー！バージョン確認に失敗しました。";
-                    return;
                 //アップデートがある時
-                default:
-                    //DoUpdate関数へ飛んでアップデート開始
-                    DoUpdate();
-                    break;
+                //DoUpdate関数へ飛んでアップデート開始
+                DoUpdate();
             }
+      
         }
 
 
@@ -130,52 +123,28 @@ namespace hotLauncherWin
         //処理を行う関数(Public)
         //--------------------------------------------------------------------
         
-        string CheckUpdates()
+        void GetInstalledVer()
         {
-            string currentVer;
 
             //インストール済みVerを記録しているVER.txtが存在するか確認する。無ければcurrentVerに000を代入する
             if (File.Exists(@"VER.txt"))
             {
                 currentVer = ReadByTextFile("VER.txt");
-                File.Delete(@"VER.txt");
+                
             }
             else { currentVer = "000"; }
-
-            //verURLのダウンロードをする。このif文は「もしエラーを返さずに完了出来たら」。
-            if (DownloadFromURL(verURL, "VER.txt"))
-            {
-                string latestVer = ReadByTextFile("VER.txt");
-                //もしチェックした最新VerとVER.txtから読み取ったcurrentVerが一致していればlatestを返す。そうでなければ最新Verのバージョン番号を返す。
-                if (currentVer == latestVer)
-                {return "latest";}
-                else
-                {return latestVer;}
-            }
-            else{
-                //エラー発生時
-                //return "error cannot download from: " + verURL;
-                return "error";
-            }
-
 
         }
 
         void DoUpdate()
         {
-            string resURL = GetFromURL(resourceURL);
-            if(resURL == "error")
-            {
-                //ダウンロード先のURLを取得できなかった場合
-                StatusLabel.Text = "サーバーエラー！ アップデート フェーズ1で失敗しました。";
-                return;
-            }
-            else
-            {
+                //VER.txtがあれば削除（上書きエラー防止）
+                if (File.Exists(@"VER.txt")){File.Delete(@"VER.txt"); }
+
                 //ダウンロード先のURLを取得出来たらダウンロードを開始する
-                DownloadResources(resURL);
+                DownloadResources(resourceURL);
                 return;
-            }
+           
         }
 
         void ApplyUpdate()
@@ -218,19 +187,22 @@ namespace hotLauncherWin
             StatusLabel.Text = ("最新バージョンを実行しています。");
             progressBar1.Value = 100;
             PlayButton.Enabled = true;
+
+            //最新Verを書き込む
+            File.WriteAllText("VER.txt", currentVer);
         }
 
         //設定項目に抜けがないかチェックする関数
         string VerifySettings()
         {
             string err = "";
-            if(verURL == "")
+            if(infoURL == "")
             {
-                err = err + "<br>" + "verURL(最新バージョン取得URL)を指定してください！";
+                err = err + "<br>" + "infoURL(ランチャー情報取得URL)を指定してください！";
             }
             if (resourceURL == "")
             {
-                err = err + "<br>" + "resourceURL(リソース情報取得先URL)を指定してください！";
+                err = err + "<br>" + "infoURLで指定したファイルから、resourceURL(リソース情報取得先URL)を指定してください！";
             }
             if (launcherName == "")
             {
@@ -242,15 +214,11 @@ namespace hotLauncherWin
             }
             if (newsURL == "")
             {
-                err = err + "<br>" + "newsURL(最新情報表示WebBrowserのURL)を指定してください！";
-            }
-            if (lverURL == "")
-            {
-                err = err + "<br>" + "lverURL(最新ランチャーバージョン取得URL)を指定してください！";
+                err = err + "<br>" + "infoURLで指定したファイルから、newsURL(最新情報表示WebBrowserのURL)を指定してください！";
             }
             if (launcherURL == "")
             {
-                err = err + "<br>" + "newsURL(最新ランチャーのダウンロードURL)を指定してください！";
+                err = err + "<br>" + "infoURLで指定したファイルから、launcherURL(最新ランチャーのダウンロードURL)を指定してください！";
             }
             if (err == "")
             {
@@ -259,26 +227,7 @@ namespace hotLauncherWin
             return err;
         }
 
-        //ランチャー自体のアップデートがないかチェックする
-        private string CheckLatestLVer()
-        {
-            string latestLver = GetFromURL(lverURL);
-            if (latestLver == launcherVer)
-            {
-                //最新なら特に何もしない
-                return "latest";
-            }
-            else if (latestLver == "error")
-            {
-                //最新ランチャーVerの取得に失敗
-                return "error";
-            }
-            else
-            {
-                //最新版があった場合
-                return latestLver;
-            }
-        }
+
 
         private void DoLauncherUpdate()
         {
@@ -346,6 +295,29 @@ namespace hotLauncherWin
             }
         }
 
+        private bool GetInfoData()
+        {
+            try
+            {
+                //infodata.txtを読み込んでinfoDataに配列として格納する
+                DownloadFromURL(infoURL, "infodata.txt");
+                string[] infoData;
+                infoData = File.ReadAllLines("infodata.txt", Encoding.UTF8);
+
+                launcherURL = infoData[7];
+                newsURL = infoData[9];
+                resourceURL = infoData[3];
+                lVer = infoData[5];
+                latestVer = infoData[1];
+            }
+            catch
+            {
+                return false;
+            }
+
+            return true;
+
+        }
 
 
         //--------------------------------------------------------------------
