@@ -57,6 +57,9 @@ namespace hotLauncherWin
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //TLS1.1, TLS1.2に対応させる
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
             //Resフォルダがなければ作る
             string path = Path.GetDirectoryName(System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName) + @"\Res\";
             if (!Directory.Exists(path))
@@ -452,6 +455,7 @@ namespace hotLauncherWin
         }
 
 
+
         //--------------------------------------------------------------------
         //各種Formコントロールのイベント
         //--------------------------------------------------------------------
@@ -481,5 +485,7 @@ namespace hotLauncherWin
             //役目を終えたランチャーはこれにて終了
             this.Close();
         }
+
+
     }
 }
