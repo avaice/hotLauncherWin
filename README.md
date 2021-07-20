@@ -18,7 +18,7 @@
  「こうしたほうがいい」みたいなのがあればTwitterのDMでぜひ教えてください。<br>
 
 # 使い方(※VS2019とC#が入っている前提)
-初心者向けのやさしい解説は<a href="http://playio.starfree.jp/blog/2021/03/18/%e3%80%90%e8%a9%b3%e8%aa%ac%e3%80%91hotlauncher%e3%81%ae%e4%bd%bf%e3%81%84%e6%96%b9/">こちら</a><br><br>
+初心者向けのやさしい解説は<a href="https://cho-ice.xyz/2021/03/18/%e3%80%90%e8%a9%b3%e8%aa%ac%e3%80%91hotlauncher%e3%81%ae%e4%bd%bf%e3%81%84%e6%96%b9/">こちら</a><br><br>
   1.リポジトリをCloneする　またはZipでダウンロードする　※Cloneすれば今後のアップデートをPullで簡単に適用できます。<br>
   2.hotLauncherWin.csprojをVS2019で開く<br>
   3.ソリューション エクスプローラーからlauncherSettings.csを開く<br>
