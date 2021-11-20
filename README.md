@@ -1,5 +1,5 @@
 # hotLauncherWin
- Onlinegame launcher for indiegame developers!
+ Onlinegame launcher for indie game developers!
  
 # 概要
  オンラインゲームを制作する際、ゲームのアップデーターを1から開発するのは手間になってしまいます。<br>
